@@ -136,7 +136,7 @@ async def check_birthday():
                     f'Today is {member.nick or member.name}\'s Birthday!')
 
                 await send_message(bot.member_channel, 
-                    bot.birthday_message.replace('NAME', f'{member.nick or member.name}'))
+                    bot.birthday_message.replace('NAME', f'{member.mention}'))
 
             # Check if the birthday is upcoming
             if ahead_date.day == birthday_day and ahead_date.month == birthday_month:
