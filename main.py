@@ -67,7 +67,7 @@ async def on_message(message):
     
     # See if the month was written as text
     if (capitalized := args[1].capitalize()) in MONTHS:
-        month = MONTHS.index(capitalized)
+        month = MONTHS.index(capitalized)+1
     else:
         month = None
 
