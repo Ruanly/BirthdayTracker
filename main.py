@@ -123,6 +123,12 @@ async def check_birthday():
             # Get the recorded birthday day and month
             birthday_month = datapoint[1]
             birthday_day = datapoint[2]
+
+            # Change leap day birthdays to 28 on non-leap years
+            try:
+                datetime(now.year, birthday_month, birthday_day)
+            except ValueError:
+                birthday_day = 28
             
             # Get the member
             member = bot.guild.get_member(datapoint[0])
