@@ -121,7 +121,6 @@ async def on_message(message):
 # Check for birthdays every day
 @tasks.loop(hours=24)
 async def check_birthday(): 
-    print('true')
     # Get the current date, and the future date used to check upcoming birthdays
     now = datetime.utcnow()
     ahead_date = now + timedelta(days=bot.ahead_range)
@@ -136,7 +135,7 @@ async def check_birthday():
             # Get the recorded birthday day and month
             birthday_month = datapoint[1]
             birthday_day = datapoint[2]
-            print(birthday_month)
+
             # Change leap day birthdays to 28 on non-leap years
             try:
                 datetime(now.year, birthday_month, birthday_day)
@@ -148,7 +147,6 @@ async def check_birthday():
             member = bot.guild.get_member(datapoint[0])
             if member is None:
                 continue
-            print(f'{member.name} | {birthday_month} | {birthday_day}')
 
             # Check if the birthday is today
             if now.day == birthday_day and now.month == birthday_month:
