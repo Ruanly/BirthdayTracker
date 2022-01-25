@@ -115,11 +115,11 @@ async def on_message(message):
     # Add the day and month into the database
     ID = member.id
     with DatabaseConnection(bot.database_url) as cursor:
-        if not [data for data in cursor.execute("SELECT * FROM data WHERE id=?", (ID,))]:
+        if not [data for data in cursor.execute("SELECT * FROM data WHERE id=%s", (ID,))]:
 
-            cursor.execute("INSERT INTO data VALUES (?, ?, ?)", (ID, month, day))
+            cursor.execute("INSERT INTO data VALUES (%s, %s, %s)", (ID, month, day))
         else:
-            cursor.execute("UPDATE data SET month=?, day=? WHERE id=?", (month, day, ID))
+            cursor.execute("UPDATE data SET month=%s, day=%s WHERE id=%s", (month, day, ID))
 
 
     await send_message(channel, 'Your birthday was successfully recorded!')
