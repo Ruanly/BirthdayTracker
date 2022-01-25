@@ -136,7 +136,7 @@ async def check_birthday():
             # Get the recorded birthday day and month
             birthday_month = datapoint[1]
             birthday_day = datapoint[2]
-
+            print(birthday_month)
             # Change leap day birthdays to 28 on non-leap years
             try:
                 datetime(now.year, birthday_month, birthday_day)
