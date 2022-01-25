@@ -49,7 +49,7 @@ async def on_member_join(member):
 
     # Send the dm
     dm = member.dm_channel
-    await dm.send(os.environ.get('WELCOME_MESSAGE'))
+    await dm.send(bot.welcome_message)
 
 
 # Set birthday in database based on dm
@@ -123,8 +123,7 @@ async def on_message(message):
 async def check_birthday(): 
     # Get the current date, and the future date used to check upcoming birthdays
     now = datetime.utcnow()
-    ahead_range = int(os.environ.get('ALERT_DAYS'))
-    ahead_date = now + timedelta(days=ahead_range)
+    ahead_date = now + timedelta(days=bot.ahead_range)
 
     # Open the database connection
     with DatabaseConnection() as cursor:
@@ -161,7 +160,7 @@ async def check_birthday():
             if ahead_date.day == birthday_day and ahead_date.month == birthday_month:
 
                 await send_message(bot.staff_channel, 
-                    f'{member.nick or member.name}\'s birthday is in {ahead_range} days!')
+                    f'{member.nick or member.name}\'s birthday is in {bot.ahead_range} days!')
 
 
 def load_references(bot):
@@ -187,6 +186,18 @@ def load_references(bot):
     bot.birthday_message = os.environ.get('BIRTHDAY_MESSAGE')
     if bot.birthday_message is None:
         print('Failed to get the birthday message')
+        exit()
+
+    # Get the welcome message
+    bot.welcome_message = os.environ.get('WELCOME_MESSAGE')
+    if bot.welcome_message is None:
+        print('Failed to get the welcome message')
+        exit()
+
+    # Get the ahead range
+    bot.ahead_range = int(os.environ.get('ALERT_DAYS'))
+    if bot.ahead_range is None:
+        print('Failed to get the ahead range.')
         exit()
 
 if __name__ == '__main__':
