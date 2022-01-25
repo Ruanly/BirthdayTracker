@@ -2,7 +2,7 @@ import psycopg2
 
 
 class DatabaseConnection:
-    """A context manager for a sqlite3 connection."""
+    """A context manager for a Heroku Postgres connection."""
 
     def __init__(self, url):
         self.database_url = url
