@@ -106,7 +106,7 @@ async def on_message(message):
 
     # Add the day and month into the database
     ID = member.id
-    with DatabaseConnection() as cursor:
+    with DatabaseConnection(bot.database_url) as cursor:
         if not [data for data in cursor.execute("SELECT * FROM data WHERE id=?", (ID,))]:
 
             cursor.execute("INSERT INTO data VALUES (?, ?, ?)", (ID, month, day))
@@ -126,7 +126,7 @@ async def check_birthday():
     ahead_date = now + timedelta(days=bot.ahead_range)
 
     # Open the database connection
-    with DatabaseConnection() as cursor:
+    with DatabaseConnection(bot.database_url) as cursor:
         
         # Loop through all recorded birthdays
         data = cursor.execute("SELECT * FROM data")
@@ -201,12 +201,19 @@ def load_references(bot):
         print('Failed to get the ahead range.')
         exit()
 
+    # Get the database url
+    bot.database_url = os.environ.get('DATABASE_URL')
+    if bot.database_url is None:
+        print('Failed to get the database')
+        exit()
+
+
 if __name__ == '__main__':
     # Load .env file
     load_dotenv()
 
     # Create the table
-    with DatabaseConnection() as cursor:
+    with DatabaseConnection(bot.database_url) as cursor:
         cursor.execute("CREATE TABLE IF NOT EXISTS data (id int PRIMARY KEY, month int, day int);")
 
     # Run Bot
