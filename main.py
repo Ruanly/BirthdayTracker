@@ -123,7 +123,7 @@ async def on_message(message):
 async def check_birthday(): 
     # Get the current date, and the future date used to check upcoming birthdays
     now = datetime.utcnow()
-    ahead_range = 7
+    ahead_range = int(os.environ.get('ALERT_DAYS'))
     ahead_date = now + timedelta(days=ahead_range)
 
     # Open the database connection
