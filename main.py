@@ -34,8 +34,16 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 # Confirm the bot is live
 @bot.event
 async def on_ready():
+    
+    # Do some initializations
     load_references(bot)
     check_birthday.start()
+
+    # Create the table
+    with DatabaseConnection(bot.database_url) as cursor:
+        cursor.execute("CREATE TABLE IF NOT EXISTS data (id int PRIMARY KEY, month int, day int);")
+
+    # Verify that everything worked
     print('Bot is online.')
 
 
@@ -211,10 +219,6 @@ def load_references(bot):
 if __name__ == '__main__':
     # Load .env file
     load_dotenv()
-
-    # Create the table
-    with DatabaseConnection(bot.database_url) as cursor:
-        cursor.execute("CREATE TABLE IF NOT EXISTS data (id int PRIMARY KEY, month int, day int);")
 
     # Run Bot
     bot.run(os.environ.get('BOT_TOKEN'))
