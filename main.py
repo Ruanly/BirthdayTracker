@@ -121,6 +121,7 @@ async def on_message(message):
 # Check for birthdays every day
 @tasks.loop(hours=24)
 async def check_birthday(): 
+    print('true')
     # Get the current date, and the future date used to check upcoming birthdays
     now = datetime.utcnow()
     ahead_date = now + timedelta(days=bot.ahead_range)
