@@ -39,6 +39,19 @@ async def on_ready():
     print('Bot is online.')
 
 
+# Send an initial message
+@bot.event
+async def on_member_join(member):
+
+    # Create the dm channel
+    if member.dm_channel is None:
+        await member.create_dm()
+
+    # Send the dm
+    dm = member.dm_channel
+    await dm.send(os.environ.get('WELCOME_MESSAGE'))
+
+
 # Set birthday in database based on dm
 @bot.event
 async def on_message(message):
