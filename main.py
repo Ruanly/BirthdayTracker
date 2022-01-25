@@ -147,6 +147,7 @@ async def check_birthday():
             member = bot.guild.get_member(datapoint[0])
             if member is None:
                 continue
+            print(f'{member.name} | {birthday_month} | {birthday_day}')
 
             # Check if the birthday is today
             if now.day == birthday_day and now.month == birthday_month:
