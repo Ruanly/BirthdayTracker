@@ -41,7 +41,7 @@ async def on_ready():
 
     # Create the table
     with DatabaseConnection(bot.database_url) as cursor:
-        cursor.execute("CREATE TABLE IF NOT EXISTS data (id int PRIMARY KEY, month int, day int);")
+        cursor.execute("CREATE TABLE IF NOT EXISTS data (id bigint PRIMARY KEY, month int, day int);")
 
     # Verify that everything worked
     print('Bot is online.')
@@ -115,7 +115,9 @@ async def on_message(message):
     # Add the day and month into the database
     ID = member.id
     with DatabaseConnection(bot.database_url) as cursor:
-        if not [data for data in cursor.execute("SELECT * FROM data WHERE id=%s", (ID,))]:
+        
+        cursor.execute("SELECT * FROM data WHERE id=%s", (ID,))
+        if cursor.fetchall() is None:
 
             cursor.execute("INSERT INTO data VALUES (%s, %s, %s)", (ID, month, day))
         else:
@@ -136,8 +138,14 @@ async def check_birthday():
     # Open the database connection
     with DatabaseConnection(bot.database_url) as cursor:
         
+        # Get the data
+        cursor.execute("SELECT * FROM data")
+        data = cursor.fetchall()
+        
+        if data is None:
+            return
+
         # Loop through all recorded birthdays
-        data = cursor.execute("SELECT * FROM data")
         for datapoint in data:
 
             # Get the recorded birthday day and month
