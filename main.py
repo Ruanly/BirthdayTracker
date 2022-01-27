@@ -41,7 +41,7 @@ async def on_ready():
 
     # Create the table
     with DatabaseConnection(bot.database_url) as cursor:
-        cursor.execute("CREATE TABLE IF NOT EXISTS data (id bigint PRIMARY KEY, month int, day int);")
+        cursor.execute("CREATE TABLE IF NOT EXISTS data (id bigint PRIMARY KEY, month int, day int, celebrated bool);")
 
     # Verify that everything worked
     print('Bot is online.')
@@ -119,9 +119,9 @@ async def on_message(message):
         cursor.execute("SELECT * FROM data WHERE id=%s", (ID,))
         if cursor.fetchall() is None:
 
-            cursor.execute("INSERT INTO data VALUES (%s, %s, %s)", (ID, month, day))
+            cursor.execute("INSERT INTO data VALUES (%s, %s, %s, %s)", (ID, month, day, False))
         else:
-            cursor.execute("UPDATE data SET month=%s, day=%s WHERE id=%s", (month, day, ID))
+            cursor.execute("UPDATE data SET month=%s, day=%s celebrated=%s WHERE id=%s", (month, day, False, ID))
 
 
     await send_message(channel, 'Your birthday was successfully recorded!')
@@ -151,6 +151,7 @@ async def check_birthday():
             # Get the recorded birthday day and month
             birthday_month = datapoint[1]
             birthday_day = datapoint[2]
+            already_celebrated = datapoint[3]
 
             # Change leap day birthdays to 28 on non-leap years
             try:
@@ -166,12 +167,24 @@ async def check_birthday():
 
             # Check if the birthday is today
             if now.day == birthday_day and now.month == birthday_month:
-                
-                await send_message(bot.staff_channel, 
-                    f'Today is {member.nick or member.name}\'s Birthday!')
 
-                await send_message(bot.member_channel, 
-                    bot.birthday_message.replace('NAME', f'{member.mention}'))
+                # Only send if the birthday has not already been celebrated
+                if not already_celebrated:            
+                    
+                    await send_message(bot.staff_channel, 
+                        f'Today is {member.nick or member.name}\'s Birthday!')
+
+                    await send_message(bot.member_channel, 
+                        bot.birthday_message.replace('NAME', f'{member.mention}'))
+
+                    already_celebrated = True
+            else:
+                already_celebrated = False
+
+            # Tell the database that the birthday has been celebrated
+            with DatabaseConnection(bot.database_url) as cursor:
+                cursor.execute("UPDATE data SET celebrated=%s WHERE id=%s", (already_celebrated, member.id))
+
 
             # Check if the birthday is upcoming
             if ahead_date.day == birthday_day and ahead_date.month == birthday_month:
