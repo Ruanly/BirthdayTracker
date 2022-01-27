@@ -121,7 +121,7 @@ async def on_message(message):
 
             cursor.execute("INSERT INTO data VALUES (%s, %s, %s, %s)", (ID, month, day, False))
         else:
-            cursor.execute("UPDATE data SET month=%s, day=%s celebrated=%s WHERE id=%s", (month, day, False, ID))
+            cursor.execute("UPDATE data SET month=%s, day=%s, celebrated=%s WHERE id=%s", (month, day, False, ID))
 
 
     await send_message(channel, 'Your birthday was successfully recorded!')
