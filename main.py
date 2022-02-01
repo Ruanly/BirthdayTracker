@@ -117,7 +117,7 @@ async def on_message(message):
     with DatabaseConnection(bot.database_url) as cursor:
         
         cursor.execute("SELECT * FROM data WHERE id=%s", (ID,))
-        if cursor.fetchall() is None:
+        if cursor.fetchone() is None:
 
             cursor.execute("INSERT INTO data VALUES (%s, %s, %s, %s)", (ID, month, day, False))
         else:
