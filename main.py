@@ -128,6 +128,54 @@ async def on_message(message):
     await send_message(bot.staff_channel, f'{member.nick or member.name} has recorded the birthday ({MONTHS[month-1]} {day})')
 
 
+@tasks.loop(hours=24)
+async def check_anniversary(): 
+
+    now = datetime.utcnow()
+
+    with DatabaseConnection(bot.database_url) as cursor:
+
+        for member in bot.guild.members:
+
+            if member is None:
+                continue
+            
+            temp = member.joined_at
+            years = 0
+
+            while temp <= (now - timedelta(months=6)):
+                temp += timedelta(months=6)
+                years += 0.5
+            
+            if years == 0:
+                continue
+            if temp.days != 0:
+                continue
+
+            cursor.execute("SELECT * FROM data WHERE id=%s", (member.id,))
+            data = cursor.fetchone()
+
+            birthday_month = data[1]
+            birthday_day = data[2]
+            try:
+                birthday = datetime(now.year, birthday_month, birthday_day)
+            except ValueError as e:
+                birthday_day = 28
+                birthday = datetime(now.year, birthday_month, birthday_day)
+                print(e)
+            
+            if data is None:
+                await send_message(bot.member_channel, 
+                    bot.anniversary_message_one.replace('NAME', f'{member.mention}'))
+                continue
+
+            if birthday < now - timedelta(months=6):
+                await send_message(bot.member_channel, 
+                    bot.anniversary_message_one.replace('NAME', f'{member.mention}')).replace('XXX', f"{years:.1f} years")
+            else:
+                await send_message(bot.member_channel, 
+                    bot.anniversary_message_two.replace('NAME', f'{member.mention}')).replace('XXX', f"{years:.1f} years")
+
 # Check for birthdays every day
 @tasks.loop(hours=24)
 async def check_birthday(): 
@@ -174,8 +222,12 @@ async def check_birthday():
                     await send_message(bot.staff_channel, 
                         f'Today is {member.nick or member.name}\'s Birthday!')
 
-                    await send_message(bot.member_channel, 
-                        bot.birthday_message.replace('NAME', f'{member.mention}'))
+                    if member.joined_at < (now - timedelta(months=6)):
+                        await send_message(bot.member_channel, 
+                            bot.birthday_message_one.replace('NAME', f'{member.mention}'))
+                    else:
+                        await send_message(bot.member_channel, 
+                            bot.birthday_message_two.replace('NAME', f'{member.mention}'))
 
                     already_celebrated = True
             else:
@@ -213,9 +265,27 @@ def load_references(bot):
         exit()
 
     # Get the birthday message
-    bot.birthday_message = os.environ.get('BIRTHDAY_MESSAGE')
-    if bot.birthday_message is None:
-        print('Failed to get the birthday message')
+    bot.birthday_message_one = os.environ.get('BIRTHDAY_MESSAGE_1')
+    if bot.birthday_message_one is None:
+        print('Failed to get the birthday message 1')
+        exit()
+
+     # Get the birthday message
+    bot.birthday_message_two = os.environ.get('BIRTHDAY_MESSAGE_2')
+    if bot.birthday_message_two is None:
+        print('Failed to get the birthday message 2')
+        exit()
+
+    # Get the birthday message
+    bot.birthday_anniversary_one = os.environ.get('ANNIVERSARY_MESSAGE_1')
+    if bot.birthday_anniversary_one is None:
+        print('Failed to get the anniversary message 1')
+        exit()
+
+     # Get the birthday message
+    bot.birthday_anniversary_two = os.environ.get('ANNIVERSARY_MESSAGE_2')
+    if bot.birthday_anniversary_two is None:
+        print('Failed to get the anniversary message 2')
         exit()
 
     # Get the welcome message
