@@ -143,8 +143,8 @@ async def check_anniversary():
             temp = member.joined_at
             years = 0
 
-            while temp <= (now - timedelta(months=6)):
-                temp += timedelta(months=6)
+            while temp <= (now - timedelta(days=182)):
+                temp += timedelta(days=182)
                 years += 0.5
             
             if years == 0:
@@ -222,7 +222,7 @@ async def check_birthday():
                     await send_message(bot.staff_channel, 
                         f'Today is {member.nick or member.name}\'s Birthday!')
 
-                    if member.joined_at < (now - timedelta(months=6)):
+                    if member.joined_at < (now - timedelta(days=182)):
                         await send_message(bot.member_channel, 
                             bot.birthday_message_one.replace('NAME', f'{member.mention}'))
                     else:
